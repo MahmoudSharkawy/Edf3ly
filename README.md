@@ -3,11 +3,11 @@
 An enterprise-grade, high-concurrency payment gateway infrastructure built with a hybrid microservices architecture using **Laravel 13 (PHP 8.5)** and **Node.js/Express (v26.x) with MongoDB**.
 
 ## 📊 Core Payment Dashboard Preview
-![Edf3ly Payment Gateway Dashboard](assets/screenshots/001.png)
-![Edf3ly Payment Gateway Dashboard](assets/screenshots/001.png)
+![Edf3ly Payment Gateway Dashboard](assets/001.png)
+![Edf3ly Payment Gateway Dashboard](assets/001.png)
 
-![Edf3ly Payment Gateway Dashboard](assets/screenshots/02.png)
-![Edf3ly Payment Gateway Dashboard](assets/screenshots/002.png)
+![Edf3ly Payment Gateway Dashboard](assets/02.png)
+![Edf3ly Payment Gateway Dashboard](assets/002.png)
 
 
 ## 🏛️ System Architecture Layout
