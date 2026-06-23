@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدفع لي - بوابة الدفع الآمنة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #090d16;
+            --card: #111726;
+            --primary: #2563eb;
+            --success: #10b981;
+            --text: #ffffff;
+            --text-muted: #9ca3af;
+            --border: #1e293b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding: 40px 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .checkout-container { width: 100%; max-width: 480px; background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 32px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5); }
+        .brand { text-align: center; margin-bottom: 24px; }
+        .brand h1 { font-size: 28px; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
+        .brand h1 span { color: #f43f5e; }
+        .invoice-box { background: rgba(255,255,255,0.02); border: 1px dashed var(--border); border-radius: 16px; padding: 16px; margin-bottom: 24px; text-align: center; }
+        .amount { font-size: 36px; font-weight: 700; color: var(--text); margin-top: 4px; }
+        .amount span { font-size: 16px; color: var(--text-muted); font-weight: 500; }
+        .section-title { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .method-select { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+        .method-card { border: 2px solid var(--border); border-radius: 14px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.2s ease; background: rgba(255,255,255,0.01); }
+        .method-card:hover { border-color: rgba(37, 99, 235, 0.4); }
+        .method-card.active { border-color: var(--primary); background: rgba(37, 99, 235, 0.05); }
+        .method-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .method-card p { font-size: 11px; color: var(--text-muted); }
+        .pay-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .pay-btn:hover { background: #1d4ed8; transform: translateY(-1px); }
+        .result-box { display: none; margin-top: 20px; padding: 16px; border-radius: 12px; font-size: 14px; text-align: center; line-height: 1.5; }
+        .result-box.success { display: block; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--success); }
+    </style>
+</head>
+<body>
+
+<div class="checkout-container">
+    <div class="brand">
+        <h1>Edf3ly<span>.eg</span></h1>
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">بوابة الدفع الإلكتروني المؤمنة</p>
+    </div>
+
+    <div class="invoice-box">
+        <div style="font-size: 13px; color: var(--text-muted);">إجمالي المطلوب سداده</div>
+        <div class="amount">750.00 <span>EGP</span></div>
+    </div>
+
+    <div class="section-title">إختر وسيلة الدفع</div>
+    <div class="method-select">
+        <div class="method-card active" onclick="selectMethod(this, 'Vodafone Cash')">
+            <h3>Vodafone Cash</h3>
+            <p>المحافظ الإلكترونية</p>
+        </div>
+        <div class="method-card" onclick="selectMethod(this, 'InstaPay / Meeza')">
+            <h3>InstaPay / ميزة</h3>
+            <p>التحويل اللحظي المباشر</p>
+        </div>
+    </div>
+
+    <button class="pay-btn" id="payButton" onclick="triggerPayment()">تأكيد وإتمام الدفع الآمن</button>
+
+    <div class="result-box" id="resultBox"></div>
+</div>
+
+<script>
+    let selectedMethod = 'Vodafone Cash';
+
+    function selectMethod(element, method) {
+        document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+        element.classList.add('active');
+        selectedMethod = method;
+    }
+
+    async function triggerPayment() {
+        const btn = document.getElementById('payButton');
+        const resBox = document.getElementById('resultBox');
+        btn.innerText = 'جاري معالجة العملية الماليّة...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/api/gateway/charge', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    merchantId: "MERCH-EGP-99",
+                    merchantName: "Sharkawy Store",
+                    amount: 750.00,
+                    paymentMethod: selectedMethod,
+                    referenceNumber: "EDF3LY-TX-" + Math.floor(Math.random() * 100000)
+                })
+            });
+
+            const data = await response.json();
+            
+            resBox.className = "result-box success";
+            resBox.innerHTML = `<strong>🟢 تم الدفع بنجاح!</strong><br>${data.message}<br>الرصيد الحالي بالمحفظة: ${data.currentBalance}`;
+            btn.innerText = 'تمت العملية بنجاح';
+        } catch (error) {
+            btn.innerText = 'تأكيد وإتمام الدفع الآمن';
+            btn.disabled = false;
+            alert('حدث خطأ في الاتصال بالسيرفر');
+        }
+    }
+</script>
+
+</body>
+</html>
